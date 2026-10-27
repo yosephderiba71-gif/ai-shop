@@ -1,0 +1,16 @@
+{
+  "storeName": "Lumora",
+  "tagline": "Smart everyday finds, delivered to your door",
+  "currency": "USD",
+  "currencySymbol": "$",
+  "shippingFlat": 4.99,
+  "freeShippingOver": 50,
+  "coupon": { "code": "WELCOME10", "percent": 10 },
+  "paymentNote": "Pay on delivery or by mobile transfer. We confirm your order by phone or message before shipping.",
+  "shippingPolicy": "Orders ship within 2-3 business days. Delivery takes 7-14 business days depending on your location. You get a tracking update by message once it ships.",
+  "returnPolicy": "30-day returns on unused items. If your item arrives damaged or wrong, we refund or replace it.",
+  "contactEmail": "hello@example.com",
+  "agentName": "Lumi",
+  "agentTone": "Warm, short, helpful and honest. Never pushy. Plain language.",
+  "agentExtraRules": "If you do not know something, say so and offer to pass the chat to a human."
+}

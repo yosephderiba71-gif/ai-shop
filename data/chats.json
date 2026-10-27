@@ -1,0 +1,41 @@
+[
+  {
+    "id": "7ffcd750-d3f9-4a3f-aa4b-de99b526215b",
+    "started": "2026-10-25T16:33:48.043Z",
+    "messages": [
+      {
+        "role": "user",
+        "content": "do you have a tshirt",
+        "at": "2026-10-25T16:33:48.043Z"
+      },
+      {
+        "role": "assistant",
+        "content": "I can help with shipping, returns, payment and products. For anything else, email hello@example.com and a person will reply.",
+        "at": "2026-10-25T16:33:48.043Z"
+      },
+      {
+        "role": "user",
+        "content": "can you help me?",
+        "at": "2026-10-25T16:34:10.446Z"
+      },
+      {
+        "role": "assistant",
+        "content": "I can help with shipping, returns, payment and products. For anything else, email hello@example.com and a person will reply.",
+        "at": "2026-10-25T16:34:10.446Z"
+      },
+      {
+        "role": "user",
+        "content": "Help me choose a gift",
+        "at": "2026-10-25T16:49:47.992Z"
+      },
+      {
+        "role": "assistant",
+        "content": "I can help with shipping, returns, payment and products. For anything else, email hello@example.com and a person will reply.",
+        "at": "2026-10-25T16:49:47.992Z"
+      }
+    ],
+    "handoff": true,
+    "resolved": false,
+    "updated": "2026-10-25T16:49:47.992Z"
+  }
+]

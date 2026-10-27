@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Shop admin</title>
+<style>
+:root{--ink:#14201b;--muted:#5d6b64;--bg:#f4f2ec;--card:#fff;--line:#e2ddd1;--accent:#1f6f54;--gold:#e8b04b;--danger:#b3261e}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.login{min-height:100vh;display:grid;place-items:center;padding:20px}
+.box{background:#fff;border:1px solid var(--line);border-radius:16px;padding:28px;width:min(380px,100%)}
+h1,h2,h3{margin:0 0 10px}
+input,select,textarea{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;background:#fff}
+label{display:grid;gap:4px;font-size:13px;font-weight:600;margin-bottom:10px}
+.btn{background:var(--accent);color:#fff;border:0;border-radius:10px;padding:9px 16px;font-weight:600}
+.btn.alt{background:#fff;color:var(--ink);border:1.5px solid var(--line)}
+.btn.warn{background:#fff;color:var(--danger);border:1.5px solid #efc7c3}
+.btn.sm{padding:5px 11px;font-size:13px}
+.btn[disabled]{opacity:.5}
+header{background:var(--ink);color:#fff;display:flex;align-items:center;gap:14px;padding:12px 20px;flex-wrap:wrap}
+header b{font-size:18px}
+nav{display:flex;gap:4px;flex-wrap:wrap;flex:1}
+nav button{background:none;border:0;color:#cfd8d3;padding:8px 14px;border-radius:8px}
+nav button.on{background:#2b3b34;color:#fff}
+main{max-width:1100px;margin:0 auto;padding:22px 16px 60px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:18px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px}
+.stat b{display:block;font-size:26px}.stat span{color:var(--muted);font-size:13px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tag{display:inline-block;font-size:12px;font-weight:700;padding:2px 9px;border-radius:99px;background:#e9f2ec;color:var(--accent)}
+.tag.red{background:#fbe7e5;color:var(--danger)}.tag.gold{background:#fbefd3;color:#7a5600}.tag.grey{background:#eee;color:#555}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;color:var(--muted);text-transform:uppercase}
+.muted{color:var(--muted);font-size:13px}
+.draft{border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+.draft textarea{min-height:120px;margin:8px 0}
+.chat{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:12px}
+.m{padding:5px 10px;border-radius:10px;margin:4px 0;max-width:85%;font-size:14px;white-space:pre-wrap}
+.m.u{background:#eef3f0}.m.a{background:#fbf3dd;margin-left:auto}
+.msg{font-size:14px;margin-top:6px}.err{color:var(--danger)}.ok{color:var(--accent)}
+pre.brief{white-space:pre-wrap;font:inherit;margin:0}
+.checks{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.checks label{display:flex;grid-template-columns:none;align-items:center;gap:6px;font-weight:500;border:1.5px solid var(--line);border-radius:99px;padding:5px 12px;margin:0}
+.checks input{width:auto}
+@media(max-width:700px){.grid2{grid-template-columns:1fr}table{display:block;overflow-x:auto}}
+</style>
+</head>
+<body>
+<div class="login" id="login"><form class="box" id="lf">
+  <h2>Shop admin</h2><p class="muted">Enter the ADMIN_PASSWORD you set when starting the server.</p>
+  <label>Password<input type="password" id="pw" required autofocus></label>
+  <button class="btn" style="width:100%">Sign in</button><div class="msg err" id="lerr"></div>
+</form></div>
+
+<div id="app" hidden>
+<header><b>Shop admin</b>
+  <nav id="nav">
+    <button data-t="dash" class="on">Dashboard</button><button data-t="orders">Orders</button><button data-t="chats">Chats</button>
+    <button data-t="promo">Free promotion</button><button data-t="products">Products</button><button data-t="settings">Settings</button>
+  </nav>
+  <a href="/" target="_blank" style="color:#cfd8d3">View shop ↗</a>
+  <button class="btn alt sm" id="out">Sign out</button>
+</header>
+<main id="main"></main>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let KEY=sessionStorage.getItem('k')||'', tab='dash', cache={}, editing=null;
+const api=async(u,o={})=>{const r=await fetch(u,{...o,headers:{'content-type':'application/json','x-admin-key':KEY,...(o.headers||{})},body:o.body?JSON.stringify(o.body):undefined});
+  const j=await r.json().catch(()=>({}));if(r.status===401){logout();throw new Error('Signed out')}if(!r.ok)throw new Error(j.error||'Error');return j};
+function logout(){sessionStorage.removeItem('k');KEY='';$('#app').hidden=true;$('#login').hidden=false}
+async function enter(){try{await api('/api/admin/stats');sessionStorage.setItem('k',KEY);$('#login').hidden=true;$('#app').hidden=false;show('dash')}catch(e){$('#lerr').textContent=KEY?'Wrong password':'';}}
+$('#lf').onsubmit=e=>{e.preventDefault();KEY=$('#pw').value;enter()};
+$('#out').onclick=logout;
+$('#nav').onclick=e=>{const b=e.target.closest('button');if(b)show(b.dataset.t)};
+async function show(t){tab=t;document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));$('#main').innerHTML='<p class="muted">Loading...</p>';try{await views[t]()}catch(e){$('#main').innerHTML=`<p class="err">${esc(e.message)}</p>`}}
+const when=d=>new Date(d).toLocaleString([], {dateStyle:'medium',timeStyle:'short'});
+const copy=t=>navigator.clipboard.writeText(t).then(()=>alert('Copied'));
+
+const views={
+async dash(){
+  const [s,b]=await Promise.all([api('/api/admin/stats'),api('/api/admin/briefing')]);
+  $('#main').innerHTML=`<div class="cards">
+   <div class="stat"><b>${s.newOrders}</b><span>New orders to confirm</span></div>
+   <div class="stat"><b>${s.orders24h}</b><span>Orders, last 24h</span></div>
+   <div class="stat"><b>${s.revenue}</b><span>Total revenue (${s.orders} orders)</span></div>
+   <div class="stat"><b>${s.handoffs}</b><span>Chats needing a human</span></div>
+   <div class="stat"><b>${s.drafts}</b><span>Promo drafts to post</span></div>
+   <div class="stat"><b>${s.subscribers}</b><span>Email subscribers</span></div></div>
+  <div class="panel"><h3>Daily briefing from your AI manager</h3><pre class="brief">${esc(b.text)}</pre></div>
+  <div class="grid2"><div class="panel"><h3>Best sellers</h3>${s.top.length?s.top.map(t=>`<div class="row" style="justify-content:space-between"><span>${esc(t.name)}</span><b>${t.qty}</b></div>`).join(''):'<p class="muted">No sales yet.</p>'}</div>
+  <div class="panel"><h3>AI status</h3><p>AI chat and writing: ${s.aiOn?'<span class="tag">ON</span>':'<span class="tag red">OFF</span> set GEMINI_API_KEY'}</p>
+  <p>Daily promo autopilot: ${s.autopilot?'<span class="tag">ON</span>':'<span class="tag grey">OFF</span>'}</p><p class="muted">Promo posts you have marked as posted: ${s.posted}</p></div></div>`;
+},
+async orders(){
+  const o=await api('/api/admin/orders');
+  const st=['new','confirmed','ordered-from-supplier','shipped','delivered','cancelled'];
+  $('#main').innerHTML=`<div class="panel"><h3>Orders</h3><p class="muted">Flow: new → confirm with customer → order from supplier → add tracking → shipped.</p>${o.length?`<table><tr><th>Order</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th>Tracking</th></tr>${o.map(x=>`<tr>
+   <td><b>${esc(x.id)}</b><br><span class="muted">${when(x.created)}</span></td>
+   <td>${esc(x.customer.name)}<br>${esc(x.customer.phone)}<br><span class="muted">${esc(x.customer.address)}, ${esc(x.customer.city)}, ${esc(x.customer.country)}${x.customer.notes?'<br>Note: '+esc(x.customer.notes):''}</span></td>
+   <td>${x.lines.map(l=>`${l.qty}× ${esc(l.name)}`).join('<br>')}${x.coupon?`<br><span class="tag gold">${esc(x.coupon)}</span>`:''}</td>
+   <td>${x.total.toFixed(2)}</td>
+   <td><select data-o="${esc(x.id)}" data-f="status">${st.map(s=>`<option ${s===x.status?'selected':''}>${s}</option>`).join('')}</select></td>
+   <td><input data-o="${esc(x.id)}" data-f="tracking" value="${esc(x.tracking||'')}" placeholder="Tracking no."></td></tr>`).join('')}</table>`:'<p class="muted">No orders yet.</p>'}</div>`;
+  $('#main').onchange=async e=>{const t=e.target;if(!t.dataset.o)return;try{await api('/api/admin/orders/'+t.dataset.o,{method:'PATCH',body:{[t.dataset.f]:t.value}})}catch(er){alert(er.message)}};
+},
+async chats(){
+  const c=await api('/api/admin/chats');
+  $('#main').innerHTML=`<div class="panel"><h3>Customer chats</h3><p class="muted">Chats flagged "needs human" are the ones your AI could not handle. Reply by email or phone, then mark resolved.</p></div>`+
+  (c.length?c.map(x=>`<div class="chat"><div class="row" style="justify-content:space-between"><span class="muted">${when(x.updated||x.started)}</span><span>${x.handoff&&!x.resolved?'<span class="tag red">needs human</span>':x.resolved?'<span class="tag grey">resolved</span>':'<span class="tag">AI handled</span>'}
+   ${x.contact?` <b>Contact: ${esc(x.contact)}</b>`:''} <button class="btn alt sm" data-res="${esc(x.id)}" data-v="${!x.resolved}">${x.resolved?'Reopen':'Mark resolved'}</button></span></div>
+   ${x.messages.map(m=>`<div class="m ${m.role==='user'?'u':'a'}">${esc(m.content)}</div>`).join('')}</div>`).join(''):'<p class="muted">No chats yet.</p>');
+  $('#main').onclick=async e=>{const b=e.target.closest('[data-res]');if(!b)return;await api('/api/admin/chats/'+b.dataset.res,{method:'PATCH',body:{resolved:b.dataset.v==='true'}});show('chats')};
+},
+async promo(){
+  const [p,d]=await Promise.all([api('/api/admin/products'),api('/api/admin/promo')]);
+  const ch={tiktok:'TikTok / Reels',instagram:'Instagram',pinterest:'Pinterest',facebook:'Facebook',x:'X',whatsapp:'WhatsApp Status',blog:'Blog / SEO'};
+  $('#main').innerHTML=`<div class="panel"><h3>Free promotion studio</h3>
+   <p class="muted">Your AI writes ready-to-post content for free channels. You copy it and post it (platforms ban bots that auto-post, so a quick human tap keeps your accounts safe). Every link carries a tracking tag so orders show which channel works.</p>
+   <label>Product<select id="gp"><option value="all">Top 3 products</option>${p.filter(x=>x.active!==false).map(x=>`<option value="${esc(x.id)}">${esc(x.name)}</option>`).join('')}</select></label>
+   <div class="checks" id="gc">${Object.entries(ch).map(([k,v],i)=>`<label><input type="checkbox" value="${k}" ${i<3?'checked':''}> ${v}</label>`).join('')}</div>
+   <div class="row"><label style="margin:0">Variations each<select id="gn"><option>1</option><option>2</option><option>3</option></select></label><button class="btn" id="gen">Generate drafts</button></div><div class="msg" id="gm"></div></div>
+   <div class="row" style="margin-bottom:10px"><button class="btn alt sm" data-f="draft">Drafts</button><button class="btn alt sm" data-f="posted">Posted</button></div><div id="dl"></div>`;
+  let f='draft';
+  const draw=()=>{const l=d.filter(x=>x.status===f);$('#dl').innerHTML=l.length?l.map(x=>`<div class="draft" data-id="${esc(x.id)}"><div class="row" style="justify-content:space-between"><span><span class="tag">${esc(ch[x.channel]||x.channel)}</span> <b>${esc(x.productName)}</b></span><span class="muted">${when(x.created)}</span></div>
+    ${x.imageIdea?`<div class="muted">Visual idea: ${esc(x.imageIdea)}</div>`:''}
+    <textarea>${esc(x.caption)}${x.hashtags?.length?'\n\n'+esc(x.hashtags.join(' ')):''}</textarea>
+    <div class="row"><button class="btn sm" data-a="copy">Copy</button><button class="btn alt sm" data-a="save">Save edit</button>
+    <button class="btn alt sm" data-a="${x.status==='draft'?'posted':'draft'}">${x.status==='draft'?'Mark posted':'Back to drafts'}</button><button class="btn warn sm" data-a="del">Delete</button></div></div>`).join(''):'<p class="muted">Nothing here yet.</p>'};
+  draw();
+  document.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{f=b.dataset.f;draw()});
+  $('#gen').onclick=async()=>{const channels=[...document.querySelectorAll('#gc input:checked')].map(i=>i.value);$('#gen').disabled=true;$('#gm').className='msg';$('#gm').textContent='Writing... this can take a little while';
+    try{const r=await api('/api/admin/promo/generate',{method:'POST',body:{productId:$('#gp').value,channels,count:+$('#gn').value}});show('promo')}catch(e){$('#gm').className='msg err';$('#gm').textContent=e.message;$('#gen').disabled=false}};
+  $('#dl').onclick=async e=>{const b=e.target.closest('[data-a]');if(!b)return;const el=b.closest('.draft'),id=el.dataset.id,a=b.dataset.a,ta=el.querySelector('textarea');
+    if(a==='copy')return copy(ta.value);
+    if(a==='del'){if(!confirm('Delete this draft?'))return;await api('/api/admin/promo/'+id,{method:'DELETE'})}
+    else if(a==='save')await api('/api/admin/promo/'+id,{method:'PATCH',body:{caption:ta.value}});
+    else await api('/api/admin/promo/'+id,{method:'PATCH',body:{status:a}});
+    show('promo')};
+},
+async products(){
+  const p=await api('/api/admin/products');cache.p=p;
+  const e=editing||null;
+  $('#main').innerHTML=`<div class="panel"><div class="row" style="justify-content:space-between"><h3>${e?'Edit product':'Add product'}</h3>${e?'<button class="btn alt sm" id="cancel">Cancel</button>':''}</div>
+   <form id="pf"><div class="grid2"><label>Name<input name="name" required value="${esc(e?.name)}"></label><label>Category<input name="category" value="${esc(e?.category||'')}"></label>
+   <label>Price<input name="price" type="number" step="0.01" min="0" required value="${esc(e?.price??'')}"></label><label>Compare-at price (crossed out, optional)<input name="comparePrice" type="number" step="0.01" min="0" value="${esc(e?.comparePrice??'')}"></label>
+   <label>Image URL (optional)<input name="image" placeholder="https://..." value="${esc(e?.image||'')}"></label><label>Emoji icon (used if no image)<input name="icon" maxlength="4" value="${esc(e?.icon||'')}"></label>
+   <label>Badge (optional)<input name="badge" maxlength="20" value="${esc(e?.badge||'')}"></label><label>Supplier link (private, for you)<input name="supplierUrl" value="${esc(e?.supplierUrl||'')}"></label></div>
+   <label>Description<textarea name="description" rows="3">${esc(e?.description||'')}</textarea></label>
+   <label>Bullets (one per line)<textarea name="bullets" rows="4">${esc((e?.bullets||[]).join('\n'))}</textarea></label>
+   <div class="checks"><label><input type="checkbox" name="inStock" ${e?.inStock===false?'':'checked'}> In stock</label><label><input type="checkbox" name="active" ${e?.active===false?'':'checked'}> Visible in shop</label></div>
+   <div class="row"><button class="btn">${e?'Save changes':'Add product'}</button><button type="button" class="btn alt" id="aiw">✨ AI write description</button></div><div class="msg" id="pm"></div></form></div>
+   <div class="panel"><h3>Products (${p.length})</h3><table><tr><th>Product</th><th>Price</th><th>Status</th><th></th></tr>${p.map(x=>`<tr><td>${esc(x.icon)} <b>${esc(x.name)}</b><br><span class="muted">${esc(x.category)}</span></td><td>${x.price}</td>
+   <td>${x.active===false?'<span class="tag grey">hidden</span>':x.inStock===false?'<span class="tag red">sold out</span>':'<span class="tag">live</span>'}</td>
+   <td><button class="btn alt sm" data-e="${esc(x.id)}">Edit</button> <button class="btn warn sm" data-d="${esc(x.id)}">Delete</button></td></tr>`).join('')}</table></div>`;
+  if(e)$('#cancel').onclick=()=>{editing=null;show('products')};
+  $('#aiw').onclick=async()=>{const f=$('#pf');$('#pm').className='msg';$('#pm').textContent='Writing...';
+    try{const r=await api('/api/admin/product-copy',{method:'POST',body:{name:f.name.value,notes:f.description.value+' '+f.bullets.value}});f.description.value=r.description||'';f.bullets.value=(r.bullets||[]).join('\n');$('#pm').className='msg ok';$('#pm').textContent='Done. Check the facts match your supplier listing before saving.'}
+    catch(er){$('#pm').className='msg err';$('#pm').textContent=er.message}};
+  $('#pf').onsubmit=async ev=>{ev.preventDefault();const f=ev.target;
+    const body={id:e?.id,name:f.name.value,category:f.category.value,price:+f.price.value,comparePrice:f.comparePrice.value?+f.comparePrice.value:undefined,image:f.image.value,icon:f.icon.value,badge:f.badge.value,supplierUrl:f.supplierUrl.value,description:f.description.value,bullets:f.bullets.value.split('\n'),inStock:f.inStock.checked,active:f.active.checked};
+    try{await api('/api/admin/products',{method:'POST',body});editing=null;show('products')}catch(er){$('#pm').className='msg err';$('#pm').textContent=er.message}};
+  $('#main').onclick=async ev=>{const b=ev.target.closest('[data-e],[data-d]');if(!b)return;
+    if(b.dataset.e){editing=cache.p.find(x=>x.id===b.dataset.e);show('products');scrollTo(0,0)}
+    else if(confirm('Delete this product?')){await api('/api/admin/products/'+b.dataset.d,{method:'DELETE'});show('products')}};
+},
+async settings(){
+  const s=await api('/api/admin/settings');
+  const t=(k,l,rows)=>`<label>${l}${rows?`<textarea name="${k}" rows="${rows}">${esc(s[k])}</textarea>`:`<input name="${k}" value="${esc(s[k])}">`}</label>`;
+  $('#main').innerHTML=`<form class="panel" id="sf"><h3>Store settings</h3><div class="grid2">${t('storeName','Store name')}${t('tagline','Tagline')}${t('currencySymbol','Currency symbol')}${t('currency','Currency code')}
+   <label>Flat shipping<input name="shippingFlat" type="number" step="0.01" value="${esc(s.shippingFlat)}"></label><label>Free shipping over<input name="freeShippingOver" type="number" step="0.01" value="${esc(s.freeShippingOver)}"></label>
+   <label>Coupon code<input name="ccode" value="${esc(s.coupon?.code)}"></label><label>Coupon percent<input name="cpct" type="number" value="${esc(s.coupon?.percent)}"></label>${t('contactEmail','Contact email')}</div>
+   ${t('paymentNote','Payment note (shown at checkout)',2)}${t('shippingPolicy','Shipping policy',3)}${t('returnPolicy','Return policy',3)}
+   <h3 style="margin-top:14px">AI agent</h3><div class="grid2">${t('agentName','Agent name')}${t('agentTone','Tone')}</div>${t('agentExtraRules','Extra rules for your AI agent (e.g. products it should recommend first)',3)}
+   <button class="btn">Save settings</button><div class="msg" id="sm"></div></form>`;
+  $('#sf').onsubmit=async e=>{e.preventDefault();const f=e.target,b={};
+    ['storeName','tagline','currencySymbol','currency','contactEmail','paymentNote','shippingPolicy','returnPolicy','agentName','agentTone','agentExtraRules'].forEach(k=>b[k]=f[k].value);
+    b.shippingFlat=+f.shippingFlat.value;b.freeShippingOver=+f.freeShippingOver.value;b.coupon={code:f.ccode.value,percent:+f.cpct.value};
+    try{await api('/api/admin/settings',{method:'PUT',body:b});$('#sm').className='msg ok';$('#sm').textContent='Saved. Refresh the shop to see changes.'}catch(er){$('#sm').className='msg err';$('#sm').textContent=er.message}};
+}};
+if(KEY)enter();
+</script>
+</body>
+</html>
