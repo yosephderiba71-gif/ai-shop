@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--ink:#0d1b2a;--muted:#414a60;--bg:#f8f9fa;--card:#fff;--line:#d0d7de;--accent:#1d3557;--accent-d:#1a2d4a;--gold:#e63946;--danger:#d90429;--r:14px;--shadow:0 6px 24px rgba(13,27,42,.12)}
+:root{--ink:#131313;--muted:#565656;--bg:#fff;--card:#fff;--line:#e7e7e7;--accent:#ff9900;--accent-d:#e07d00;--gold:#00a664;--danger:#d90429;--r:8px;--shadow:0 2px 8px rgba(0,0,0,.1)}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{margin:0;font:16px/1.55 Inter,system-ui,sans-serif;color:var(--ink);background:var(--bg)}
@@ -18,23 +18,23 @@ a{color:inherit}
 button{font:inherit;cursor:pointer}
 :focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .wrap{max-width:1180px;margin:0 auto;padding:0 20px}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--accent);color:#fff;border:0;border-radius:999px;padding:12px 22px;font-weight:600;text-decoration:none;transition:.15s}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--accent);color:#fff;border:0;border-radius:6px;padding:12px 22px;font-weight:600;text-decoration:none;transition:.15s}
 .btn:hover{background:var(--accent-d)}
 .btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
 .btn.ghost:hover{border-color:var(--ink)}
 .btn.sm{padding:8px 16px;font-size:14px}
 .btn[disabled]{opacity:.5;cursor:not-allowed}
-.bar{background:var(--ink);color:#fff;text-align:center;font-size:14px;padding:8px 12px}
+.bar{background:#fff;color:#000;border-bottom:1px solid var(--line);font-size:13px}.bar b{color:var(--accent)}
 .bar b{color:var(--gold)}
-header.top{position:sticky;top:0;z-index:30;background:rgba(250,248,244,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+header.top{position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--line);box-shadow:0 2px 4px rgba(0,0,0,.1)}
 .nav{display:flex;align-items:center;gap:20px;height:68px}
-.logo{font-family:Fraunces,serif;font-weight:700;font-size:26px;text-decoration:none;color:var(--accent);letter-spacing:-.5px}
+.logo{font-family:Fraunces,serif;font-weight:700;font-size:26px;text-decoration:none;color:#000;letter-spacing:-.5px}.logo span{color:var(--accent)}
 .logo span{color:var(--gold)}
 .search{flex:1;max-width:420px;margin-left:auto}
-.search input{width:100%;border:1.5px solid var(--line);border-radius:999px;padding:10px 18px;background:#fff;font:inherit}
+.search input{width:100%;border:1.5px solid var(--line);border-radius:6px;padding:10px 18px;background:#fff;font:inherit;outline:none}
 .navlinks{display:flex;gap:6px;align-items:center}
-.iconbtn{background:none;border:0;padding:8px 12px;border-radius:999px;font-weight:500;color:var(--ink);text-decoration:none;position:relative}
-.iconbtn:hover{background:#efeae0}
+.iconbtn{background:none;border:0;padding:8px 12px;border-radius:0;font-weight:500;color:var(--ink);text-decoration:none;position:relative}
+.iconbtn:hover{background:#f3f3f3}
 .count{background:var(--accent);color:#fff;border-radius:999px;font-size:12px;padding:1px 7px;margin-left:4px}
 .hero{padding:64px 0 48px;background:radial-gradient(900px 400px at 85% 0,#e9f2ec 0,transparent 70%)}
 .hero .wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center}
@@ -42,7 +42,7 @@ header.top{position:sticky;top:0;z-index:30;background:rgba(250,248,244,.92);bac
 .hero h1{font-size:clamp(36px,5.2vw,60px);letter-spacing:-1.5px;margin-bottom:18px}
 .hero p{font-size:18px;color:var(--muted);max-width:520px;margin:0 0 28px}
 .hero .cta{display:flex;gap:12px;flex-wrap:wrap}
-.hero-art{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.hero-art{display:none}
 .hero-art div{aspect-ratio:1;border-radius:22px;display:grid;place-items:center;font-size:64px;box-shadow:var(--shadow)}
 .hero-art div:nth-child(1){background:#dcebe3}.hero-art div:nth-child(2){background:#f6e6c4;transform:translateY(24px)}
 .hero-art div:nth-child(3){background:#f3d9d0}.hero-art div:nth-child(4){background:#d7e3f0;transform:translateY(24px)}
@@ -59,11 +59,11 @@ section{padding:56px 0}
 .chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
 select{border:1.5px solid var(--line);border-radius:999px;padding:8px 14px;background:#fff;font:inherit;font-size:14px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:22px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;transition:.2s;cursor:pointer}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;transition:.2s;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.1)}
 .card:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
-.pimg{position:relative;aspect-ratio:1/1;display:grid;place-items:center;font-size:76px;background:linear-gradient(135deg,var(--c1),var(--c2));overflow:hidden}
+.pimg{position:relative;aspect-ratio:1/1;display:grid;place-items:center;font-size:76px;background:#f3f3f3;overflow:hidden}
 .pimg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.badge{position:absolute;top:12px;left:12px;background:var(--gold);color:#3a2a00;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;z-index:1}
+.badge{position:absolute;top:12px;left:12px;background:var(--accent);color:#fff;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;z-index:1}
 .badge.sale{left:auto;right:12px;background:var(--ink);color:#fff}
 .cbody{padding:16px;display:flex;flex-direction:column;gap:6px;flex:1}
 .cat{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
@@ -179,6 +179,7 @@ footer .logo{color:#fff}
   <div>
     <span class="eyebrow" id="eyebrow">Free shipping on bigger orders</span>
      <h1 id="heroTitle">Premium Everyday Essentials, Delivered to Your Door in Ethiopia</h1>
+     <p id="heroSub">Shop low prices on everyday essentials, delivered fast to your door. Thousands of products available with secure payment and 24/7 customer support.</p>
     <p id="heroSub">Hand-picked products for your home, desk and daily routine. Honest descriptions, easy returns and a real assistant ready to help.</p>
     <div class="cta"><a class="btn" href="#shop">Shop now</a><button class="btn ghost" id="askBtn">Ask our assistant</button></div>
   </div>
@@ -186,9 +187,10 @@ footer .logo{color:#fff}
 </div></section>
 
    <div class="trust"><div class="wrap">
-     <div><i>🔒</i><span><b>Secure Payment</b>SSL encrypted checkout</span></div>
-     <div><i>🚚</i><span><b>Fast Delivery</b>2-5 day delivery in Ethiopia</span></div>
-     <div><i>💬</i><span><b>24/7 Support</b>Real help when you need it</span></div>
+     <div><i>🚚</i><span><b>Fast & Free Delivery</b>On orders over 2,000 ETB</span></div>
+     <div><i>↩️</i><span><b>Easy Returns</b>30-day return policy</span></div>
+     <div><i>🔒</i><span><b>Secure Transactions</b>100% secure checkout</span></div>
+     <div><i>⭐</i><span><b>Customer Service</b>24/7 support available</span></div>
    </div></div>
 
 <section id="shop"><div class="wrap">
